@@ -11,7 +11,6 @@ import 'package:poly_geofence_service/models/poly_geofence_service_options.dart'
 import 'package:poly_geofence_service/models/poly_geofence_status.dart';
 import 'package:poly_geofence_service/utils/poly_utils.dart';
 
-export 'package:flutter_foreground_task/flutter_foreground_task.dart';
 export 'package:location/location.dart';
 export 'package:poly_geofence_service/models/error_codes.dart';
 export 'package:poly_geofence_service/models/lat_lng.dart';
@@ -78,7 +77,7 @@ class PolyGeofenceService {
   Future<void> start([List<PolyGeofence>? polyGeofenceList]) async {
     if (_isRunningService) return Future.error(ErrorCodes.ALREADY_STARTED);
 
-    await _checkPermissions();
+    // await _checkPermissions();
     await _listenStream();
 
     if (polyGeofenceList != null) _polyGeofenceList.addAll(polyGeofenceList);
@@ -210,23 +209,23 @@ class PolyGeofenceService {
     _printDevLog('The PolyGeofenceList has been cleared.');
   }
 
-  Future<void> _checkPermissions() async {
-    // Check that the location service is enabled.
-    final serviceEnabled = await _location.serviceEnabled();
-    if (!serviceEnabled)
-      return Future.error(ErrorCodes.LOCATION_SERVICE_DISABLED);
+  // Future<void> _checkPermissions() async {
+  //   // Check that the location service is enabled.
+  //   final serviceEnabled = await _location.serviceEnabled();
+  //   if (!serviceEnabled)
+  //     return Future.error(ErrorCodes.LOCATION_SERVICE_DISABLED);
 
-    // Check whether to allow location permission.
-    PermissionStatus permissionStatus = await _location.hasPermission();
-    if (permissionStatus == PermissionStatus.deniedForever) {
-      return Future.error(ErrorCodes.LOCATION_PERMISSION_PERMANENTLY_DENIED);
-    } else if (permissionStatus == PermissionStatus.denied) {
-      permissionStatus = await _location.requestPermission();
-      if (permissionStatus == PermissionStatus.denied ||
-          permissionStatus == PermissionStatus.deniedForever)
-        return Future.error(ErrorCodes.LOCATION_PERMISSION_DENIED);
-    }
-  }
+  //   // Check whether to allow location permission.
+  //   PermissionStatus permissionStatus = await _location.hasPermission();
+  //   if (permissionStatus == PermissionStatus.deniedForever) {
+  //     return Future.error(ErrorCodes.LOCATION_PERMISSION_PERMANENTLY_DENIED);
+  //   } else if (permissionStatus == PermissionStatus.denied) {
+  //     permissionStatus = await _location.requestPermission();
+  //     if (permissionStatus == PermissionStatus.denied ||
+  //         permissionStatus == PermissionStatus.deniedForever)
+  //       return Future.error(ErrorCodes.LOCATION_PERMISSION_DENIED);
+  //   }
+  // }
 
   Future<void> _listenStream() async {
     _location.changeSettings(
@@ -287,6 +286,12 @@ class PolyGeofenceService {
         }
       } else {
         polyGeofenceStatus = PolyGeofenceStatus.EXIT;
+
+        if ((diffTimestamp.inMilliseconds > _options.loiteringDelayMs &&
+                polyGeofence.status == PolyGeofenceStatus.EXIT) ||
+            polyGeofence.status == PolyGeofenceStatus.NOWHERE) {
+          polyGeofenceStatus = PolyGeofenceStatus.NOWHERE;
+        }
       }
 
       if (polyTimestamp != null &&

@@ -7,5 +7,8 @@ enum PolyGeofenceStatus {
   EXIT,
 
   /// Occurs when the loitering delay elapses after entering the geofence area.
-  DWELL
+  DWELL,
+
+  /// Occurs when the loitering delay elapses after entering the geofence area.
+  NOWHERE
 }
