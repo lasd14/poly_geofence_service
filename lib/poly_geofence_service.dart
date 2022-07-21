@@ -11,7 +11,7 @@ import 'package:poly_geofence_service/models/poly_geofence_status.dart';
 import 'package:poly_geofence_service/utils/poly_utils.dart';
 
 export 'package:fl_location/fl_location.dart';
-export 'package:flutter_foreground_task/flutter_foreground_task.dart';
+// export 'package:flutter_foreground_task/flutter_foreground_task.dart';
 export 'package:poly_geofence_service/errors/error_codes.dart';
 export 'package:poly_geofence_service/models/lat_lng.dart';
 export 'package:poly_geofence_service/models/poly_geofence.dart';
@@ -77,7 +77,7 @@ class PolyGeofenceService {
   Future<void> start([List<PolyGeofence>? polyGeofenceList]) async {
     if (_isRunningService) return Future.error(ErrorCodes.ALREADY_STARTED);
 
-    await _checkPermissions();
+    // await _checkPermissions();
     await _listenStream();
 
     if (polyGeofenceList != null) _polyGeofenceList.addAll(polyGeofenceList);
@@ -219,24 +219,24 @@ class PolyGeofenceService {
     _printDevLog('The PolyGeofenceList has been cleared.');
   }
 
-  Future<void> _checkPermissions() async {
-    // Check whether location services are enabled.
-    if (!await FlLocation.isLocationServicesEnabled) {
-      return Future.error(ErrorCodes.LOCATION_SERVICES_DISABLED);
-    }
+  // Future<void> _checkPermissions() async {
+  //   // Check whether location services are enabled.
+  //   if (!await FlLocation.isLocationServicesEnabled) {
+  //     return Future.error(ErrorCodes.LOCATION_SERVICES_DISABLED);
+  //   }
 
-    // Check whether to allow location permission.
-    var locationPermission = await FlLocation.checkLocationPermission();
-    if (locationPermission == LocationPermission.deniedForever) {
-      return Future.error(ErrorCodes.LOCATION_PERMISSION_PERMANENTLY_DENIED);
-    } else if (locationPermission == LocationPermission.denied) {
-      locationPermission = await FlLocation.requestLocationPermission();
-      if (locationPermission == LocationPermission.denied ||
-          locationPermission == LocationPermission.deniedForever) {
-        return Future.error(ErrorCodes.LOCATION_PERMISSION_DENIED);
-      }
-    }
-  }
+  //   // Check whether to allow location permission.
+  //   var locationPermission = await FlLocation.checkLocationPermission();
+  //   if (locationPermission == LocationPermission.deniedForever) {
+  //     return Future.error(ErrorCodes.LOCATION_PERMISSION_PERMANENTLY_DENIED);
+  //   } else if (locationPermission == LocationPermission.denied) {
+  //     locationPermission = await FlLocation.requestLocationPermission();
+  //     if (locationPermission == LocationPermission.denied ||
+  //         locationPermission == LocationPermission.deniedForever) {
+  //       return Future.error(ErrorCodes.LOCATION_PERMISSION_DENIED);
+  //     }
+  //   }
+  // }
 
   Future<void> _listenStream() async {
     _locationSubscription = FlLocation.getLocationStream(
